@@ -1,0 +1,11 @@
+POST http://localhost:9897/employees/fit?email=admin@gmail.com
+Content-Type: application/json
+
+[
+{
+"name": "sharam",
+"email": "sharma@gamil.com",
+"phone": "9328277",
+"password": "helo"
+}
+]
