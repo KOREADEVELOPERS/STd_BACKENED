@@ -1,36 +1,23 @@
 package student_mang_sys.Std_system;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "studentmanagement")
+@Document(collection = "studentmanagement") // MongoDB collection ka naam
 public class std_Attribute {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id; // MongoDB String type ka ObjectId hota hai
 
-    @Column(name = "Name")
     private String name;
-
-    @Column(name = "email")
     private String email;
-
-    @Column(name = "phone")
     private String phone;
-
-    @Column(name = "password")
     private String password;
-
-    @Column(name = "createdBy")
     private String createdBy;
-
-
 }
-
