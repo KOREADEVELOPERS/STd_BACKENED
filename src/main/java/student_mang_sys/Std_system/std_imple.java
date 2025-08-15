@@ -25,14 +25,15 @@ public class std_imple implements std_service {
 
     @Override
     public String deletestudent(Long id) {
-        if(res.existsById(id)){
-            res.deleteById(id);
-            return "data deleted successfully";
-        }
-        else{
+        if(res.existsById(String.valueOf(id))){
+            res.deleteById(String.valueOf(id));
+            return "Data deleted successfully";
+        }else
             return "ID is not found";
-        }
+
     }
+
+
     @Override
     public String saveAllStudents(List<std_Attribute> students) {
         res.saveAll(students);
