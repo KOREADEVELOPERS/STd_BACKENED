@@ -5,7 +5,7 @@ import java.util.List;
 public interface std_service {
     String Addingstudents(std_Attribute std);
     List<std_Attribute> showemoloyee();
-    String deletestudent(Long id);  // Long type parameter
+    String deletestudent(String id);  // ✅ Changed to String
     String saveAllStudents(List<std_Attribute> students);
     List<std_Attribute> getstudent();
 }
