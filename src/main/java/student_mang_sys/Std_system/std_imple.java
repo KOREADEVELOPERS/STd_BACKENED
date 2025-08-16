@@ -23,15 +23,16 @@ public class std_imple implements std_service {
         return res.findAll();
     }
 
-    @Override
-    public String deletestudent(Long id) {
-        if(res.existsById(String.valueOf(id))){
-            res.deleteById(String.valueOf(id));
-            return "Data deleted successfully";
-        }else
-            return "ID is not found";
-
+   @Override
+public String deletestudent(String id) {
+    if(res.existsById(id)){
+        res.deleteById(id);
+        return "Data deleted successfully";
+    } else {
+        return "ID not found";
     }
+}
+
 
 
     @Override
