@@ -8,7 +8,7 @@ import java.util.List;
 public class std_imple implements std_service {
 
     @Autowired
-    repository res; // Make sure your repository interface is correct and extends JpaRepository or MongoRepository
+    repository res; // MongoRepository with String ID
 
     @Override
     public String Addingstudents(std_Attribute std) {
@@ -23,7 +23,7 @@ public class std_imple implements std_service {
     }
 
     @Override
-    public String deletestudent(Long id) { // ✅ Corrected type
+    public String deletestudent(String id) { // ✅ Now String
         if(res.existsById(id)){
             res.deleteById(id);
             return "Data deleted successfully";
