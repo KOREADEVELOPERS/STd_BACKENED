@@ -20,7 +20,7 @@ public class std_controller {
     repository reps;
 
     // ✅ Register new user
-    @PostMapping("/register")
+    @PostMapping("/fit")
     public ResponseEntity<String> register(@RequestBody std_Attribute newUser) {
         if (newUser.getEmail() == null || newUser.getPassword() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email and Password are required");
