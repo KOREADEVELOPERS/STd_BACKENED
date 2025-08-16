@@ -2,14 +2,13 @@ package student_mang_sys.Std_system;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
 public class std_imple implements std_service {
 
     @Autowired
-    repository res;
+    repository res; // Make sure your repository interface is correct and extends JpaRepository or MongoRepository
 
     @Override
     public String Addingstudents(std_Attribute std) {
@@ -23,17 +22,15 @@ public class std_imple implements std_service {
         return res.findAll();
     }
 
-   @Override
-public String deletestudent(String id) {
-    if(res.existsById(id)){
-        res.deleteById(id);
-        return "Data deleted successfully";
-    } else {
-        return "ID not found";
+    @Override
+    public String deletestudent(Long id) { // ✅ Corrected type
+        if(res.existsById(id)){
+            res.deleteById(id);
+            return "Data deleted successfully";
+        } else {
+            return "ID not found";
+        }
     }
-}
-
-
 
     @Override
     public String saveAllStudents(List<std_Attribute> students) {
@@ -45,6 +42,4 @@ public String deletestudent(String id) {
     public List<std_Attribute> getstudent() {
         return res.findAll();
     }
-
-
 }
