@@ -1,4 +1,4 @@
-POST http://localhost:9897/employees/fit?email=admin@gmail.com
+https://std-backend.onrender.com/employees/fit?email=admin@gmail.com
 Content-Type: application/json
 
 [
