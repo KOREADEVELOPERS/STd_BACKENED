@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/employees")
@@ -18,7 +19,7 @@ public class std_controller {
     @Autowired
     repository reps;
 
-    //  Save multiple students for logged-in user (with email as "createdBy")
+    // Save multiple students for logged-in user (with email as "createdBy")
     @PostMapping("/fit")
     public ResponseEntity<String> saveMultiple(
             @RequestBody List<std_Attribute> students,
@@ -39,7 +40,7 @@ public class std_controller {
         return ResponseEntity.status(HttpStatus.CREATED).body("Students registered successfully");
     }
 
-    //  Save single student (best for frontend use)
+    // Save single student
     @PostMapping("/save")
     public ResponseEntity<String> saveSingle(@RequestBody std_Attribute student) {
         if (student.getName() == null || student.getEmail() == null || student.getPhone() == null || student.getCreatedBy() == null) {
@@ -50,39 +51,37 @@ public class std_controller {
         return ResponseEntity.ok("Student saved successfully");
     }
 
-    // Show all students (admin-style)
+    // Show all students
     @GetMapping("/show")
     public List<std_Attribute> displayAll() {
         return ser.showemoloyee();
     }
 
-    //  Alternate show method (if needed)
+    // Alternate show method
     @GetMapping("/find")
     public List<std_Attribute> fetchAll() {
-
         return ser.getstudent();
     }
 
-    //  Delete student by ID
-  @DeleteMapping("/delete/{id}")
-public String delete(@PathVariable String id) { // ✅ String
-    return ser.deletestudent(id);
-}
+    // Delete student by ID
+    @DeleteMapping("/delete/{id}")
+    public String delete(@PathVariable String id) {
+        return ser.deletestudent(id);
+    }
 
-
-    //  Login endpoint - returns email if valid
+    // Login endpoint - returns email if valid
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody std_Attribute request) {
         Optional<std_Attribute> user = reps.findByEmailAndPassword(request.getEmail(), request.getPassword());
 
         if (user.isPresent()) {
-            return ResponseEntity.ok(user.get().getEmail()); // Use email as login token
+            return ResponseEntity.ok(user.get().getEmail()); // ✅ plain string
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
 
-    //  Fetch only the logged-in user's students
+    // Fetch only the logged-in user's students
     @GetMapping("/my")
     public ResponseEntity<List<std_Attribute>> getMyStudents(@RequestParam String email) {
         if (email == null || email.trim().isEmpty()) {
