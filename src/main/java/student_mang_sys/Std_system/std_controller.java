@@ -64,10 +64,11 @@ public class std_controller {
     }
 
     //  Delete student by ID
-    @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
-        return ser.deletestudent(id);
-    }
+  @DeleteMapping("/delete/{id}")
+public String delete(@PathVariable String id) { // ✅ String
+    return ser.deletestudent(id);
+}
+
 
     //  Login endpoint - returns email if valid
     @PostMapping("/login")
