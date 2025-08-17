@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +19,7 @@ public class std_controller {
     repository reps;
 
     // ✅ Register new user
-    @PostMapping("/fit")
+    @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody std_Attribute newUser) {
         if (newUser.getEmail() == null || newUser.getPassword() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email and Password are required");
@@ -37,7 +36,7 @@ public class std_controller {
     }
 
     // ✅ Save multiple students for logged-in user
-    @PostMapping("/fit")
+    @PostMapping("/saveall")
     public ResponseEntity<String> saveMultiple(
             @RequestBody List<std_Attribute> students,
             @RequestParam String email) {
