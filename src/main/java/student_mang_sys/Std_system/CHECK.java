@@ -6,18 +6,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-public class SecurityConfig {
+public class CHECK {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable()
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/employees/fit", "/employees/login").permitAll() // ✅ public endpoints
-                .anyRequest().authenticated()
-            )
-            .httpBasic(); // optional
-
+            .csrf(csrf -> csrf.disable())  // disable CSRF
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()); // sab endpoints open
         return http.build();
     }
 }
