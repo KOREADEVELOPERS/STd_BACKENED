@@ -1,4 +1,4 @@
-https://localhost:9897/employees/fit?email=admin@gmail.com
+POST https://localhost:9897/employees/fit?email=admin@gmail.com
 Content-Type: application/json
 
 [
