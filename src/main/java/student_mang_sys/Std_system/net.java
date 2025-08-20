@@ -14,7 +14,7 @@ public class net {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://managementstudentreal-vzfo.vercel.app/")
+                        .allowedOrigins("https://managementstudentreal-vzfo.vercel.app") // ✅ slash हटाया
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*");
             }
