@@ -57,8 +57,7 @@ public class std_controller {
                         .body("All fields are required for every student");
             }
 
-            // ✔ Set logged-in user's email
-            student.setCreatedBy(email);
+            student.setCreatedBy(email); // assign user
         }
 
         ser.saveAllStudents(students);
@@ -83,11 +82,50 @@ public class std_controller {
     }
 
 
-    // ❌ (Removed show-all for safety)  
-    // @GetMapping("/show") → removed because users should not see global data
+    // ⭐ GET STUDENT BY ID (For Update)
+    @GetMapping("/get/{id}")
+    public ResponseEntity<?> getStudentById(@PathVariable String id) {
+        Optional<std_Attribute> student = reps.findById(id);
+
+        if (student.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Student not found");
+        }
+
+        return ResponseEntity.ok(student.get());
+    }
 
 
-    // ⭐ FIXED — Search will return only logged-in user’s data
+    // ⭐ UPDATE STUDENT
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateStudent(
+            @PathVariable String id,
+            @RequestBody std_Attribute updatedData) {
+
+        Optional<std_Attribute> existing = reps.findById(id);
+
+        if (existing.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Student not found");
+        }
+
+        std_Attribute student = existing.get();
+
+        // Update fields
+        student.setName(updatedData.getName());
+        student.setEmail(updatedData.getEmail());
+        student.setPhone(updatedData.getPhone());
+        student.setAddress(updatedData.getAddress());
+        student.setCourse(updatedData.getCourse());
+        student.setCreatedBy(updatedData.getCreatedBy());
+
+        reps.save(student);
+
+        return ResponseEntity.ok("Student updated successfully");
+    }
+
+
+    // ⭐ FIXED — Search only user data
     @GetMapping("/find")
     public ResponseEntity<List<std_Attribute>> fetchByUser(@RequestParam String email) {
 
@@ -123,7 +161,7 @@ public class std_controller {
     }
 
 
-    // ✔ Fetch logged-in user's students (alternative endpoint)
+    // ✔ Fetch logged-in user's students
     @GetMapping("/my")
     public ResponseEntity<List<std_Attribute>> getMyStudents(@RequestParam String email) {
 
