@@ -4,182 +4,80 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin(origins = "https://managementstudentreal-vzfo.vercel.app")
 @RestController
-@RequestMapping("/employees")
+@RequestMapping("/students")
 public class std_controller {
 
     @Autowired
-    private std_service ser;
+    private std_service service;
 
-    @Autowired
-    private repository reps;
+    // ➕ Add Multiple Students
+    @PostMapping("/add-multiple/{email}")
+    public ResponseEntity<?> addMultipleStudents(
+            @PathVariable String email,
+            @RequestBody List<Student> students) {
 
-    // ✔ Register new user
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody std_Attribute newUser) {
-
-        if (newUser.getEmail() == null || newUser.getPassword() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Email and Password are required");
-        }
-
-        Optional<std_Attribute> existing = reps.findByEmail(newUser.getEmail());
-        if (existing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("User already exists with this email");
-        }
-
-        reps.save(newUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+        List<Student> saved = service.saveMultipleStudents(students, email);
+        return ResponseEntity.ok(saved);
     }
 
-    // ✔ Save multiple students
-    @PostMapping("/saveall")
-    public ResponseEntity<String> saveMultiple(
-            @RequestBody List<std_Attribute> students,
-            @RequestParam String email) {
+    // ➕ Add Single Student
+    @PostMapping("/add/{email}")
+    public ResponseEntity<?> addStudent(
+            @PathVariable String email,
+            @RequestBody Student student) {
 
-        if (students == null || students.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("No students provided");
-        }
-
-        for (std_Attribute student : students) {
-            if (student.getName() == null ||
-                    student.getEmail() == null ||
-                    student.getPhone() == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("All fields are required for every student");
-            }
-            student.setCreatedBy(email);
-        }
-
-        ser.saveAllStudents(students);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Students registered successfully");
+        Student saved = service.saveStudent(student, email);
+        return ResponseEntity.ok(saved);
     }
 
-    // ✔ Save single student
-    @PostMapping("/save")
-    public ResponseEntity<String> saveSingle(@RequestBody std_Attribute student) {
-
-        if (student.getName() == null ||
-                student.getEmail() == null ||
-                student.getPhone() == null ||
-                student.getCreatedBy() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("All fields including createdBy are required");
-        }
-
-        reps.save(student);
-        return ResponseEntity.ok("Student saved successfully");
+    // 📌 Get All Students of Logged-in User
+    @GetMapping("/all/{email}")
+    public ResponseEntity<?> getStudentsByUser(@PathVariable String email) {
+        return ResponseEntity.ok(service.getStudentsByEmail(email));
     }
 
-    // ⭐ GET student by ID (for update)
+    // 🔍 Get Student by ID (MongoDB)
     @GetMapping("/get/{id}")
-    public ResponseEntity<?> getStudentById(
-            @PathVariable String id,
-            @RequestParam String email) {
+    public ResponseEntity<?> getStudentById(@PathVariable String id) {
+        Student student = service.getStudentById(id);
 
-        Optional<std_Attribute> studentOpt = reps.findById(id);
-
-        if (studentOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
+        if (student == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Student not found");
         }
-
-        std_Attribute student = studentOpt.get();
-
-        // ✅ Check if logged-in user owns this student
-        if (!student.getCreatedBy().equals(email)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authorized to view this student");
-        }
-
         return ResponseEntity.ok(student);
     }
 
-    // ⭐ UPDATE student
+    // ✏ Update Student by ID
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateStudent(
             @PathVariable String id,
-            @RequestParam String email,
-            @RequestBody std_Attribute updatedData) {
+            @RequestBody Student updatedStudent) {
 
-        Optional<std_Attribute> existingOpt = reps.findById(id);
+        Student updated = service.updateStudent(id, updatedStudent);
 
-        if (existingOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
+        if (updated == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Student not found");
         }
-
-        std_Attribute student = existingOpt.get();
-
-        // ✅ Only allow update if student belongs to logged-in user
-        if (!student.getCreatedBy().equals(email)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authorized to update this student");
-        }
-
-        // Update fields
-        student.setName(updatedData.getName());
-        student.setEmail(updatedData.getEmail());
-        student.setPhone(updatedData.getPhone());
-        student.setAddress(updatedData.getAddress());
-        student.setCourse(updatedData.getCourse());
-
-        reps.save(student);
-        return ResponseEntity.ok("Student updated successfully");
+        return ResponseEntity.ok(updated);
     }
 
-    // ⭐ Search students by logged-in user
-    @GetMapping("/find")
-    public ResponseEntity<List<std_Attribute>> fetchByUser(@RequestParam String email) {
-
-        if (email == null || email.trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        List<std_Attribute> students = reps.findByCreatedBy(email);
-        return ResponseEntity.ok(students);
-    }
-
-    // ✔ Delete student
+    // ❌ Delete Student
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable String id, @RequestParam String email) {
-        Optional<std_Attribute> studentOpt = reps.findById(id);
+    public ResponseEntity<?> deleteStudent(@PathVariable String id) {
+        boolean deleted = service.deleteStudent(id);
 
-        if (studentOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Student not found");
         }
 
-        std_Attribute student = studentOpt.get();
-
-        if (!student.getCreatedBy().equals(email)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authorized to delete this student");
-        }
-
-        ser.deletestudent(id);
-        return ResponseEntity.ok("Student deleted successfully");
-    }
-
-    // ✔ Login
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody std_Attribute request) {
-        Optional<std_Attribute> user =
-                reps.findByEmailAndPassword(request.getEmail(), request.getPassword());
-
-        if (user.isPresent()) {
-            return ResponseEntity.ok(user.get().getEmail());
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid credentials");
-        }
-    }
-
-    // ✔ Fetch logged-in user's students
-    @GetMapping("/my")
-    public ResponseEntity<List<std_Attribute>> getMyStudents(@RequestParam String email) {
-        List<std_Attribute> myStudents = reps.findByCreatedBy(email);
-        return ResponseEntity.ok(myStudents);
+        return ResponseEntity.ok("Deleted Successfully");
     }
 }
