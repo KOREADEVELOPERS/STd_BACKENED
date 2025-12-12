@@ -146,21 +146,32 @@ public ResponseEntity<?> getStudentById(@PathVariable String id) {
     }
 }
 
-// Update by ID
 @PutMapping("/update/{id}")
 public ResponseEntity<?> updateStudent(@PathVariable String id, @RequestBody std_Attribute updatedStudent) {
     Optional<std_Attribute> existing = reps.findById(id);
-    if (existing.isPresent()) {
-        std_Attribute student = existing.get();
-        student.setName(updatedStudent.getName());
-        student.setEmail(updatedStudent.getEmail());
-        student.setPhone(updatedStudent.getPhone());
-        reps.save(student);
-        return ResponseEntity.ok("Student updated successfully");
-    } else {
+
+    if (!existing.isPresent()) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
     }
+
+    std_Attribute student = existing.get();
+
+    // ✅ Update only non-null fields
+    if (updatedStudent.getName() != null) student.setName(updatedStudent.getName());
+    if (updatedStudent.getEmail() != null) student.setEmail(updatedStudent.getEmail());
+    if (updatedStudent.getPhone() != null) student.setPhone(updatedStudent.getPhone());
+
+    // ✅ Preserve createdBy and password
+    student.setCreatedBy(student.getCreatedBy());
+    student.setPassword(student.getPassword());
+
+    // ✅ Save updated student
+    reps.save(student);
+
+    // ✅ Return updated student object
+    return ResponseEntity.ok(student);
 }
+
 
 
 
