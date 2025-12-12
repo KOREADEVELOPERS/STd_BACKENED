@@ -15,69 +15,41 @@ public class std_controller {
     @Autowired
     private std_service service;
 
-    // ➕ Add Multiple Students
-    @PostMapping("/add-multiple/{email}")
-    public ResponseEntity<?> addMultipleStudents(
-            @PathVariable String email,
-            @RequestBody List<Student> students) {
-
-        List<Student> saved = service.saveMultipleStudents(students, email);
-        return ResponseEntity.ok(saved);
-    }
-
-    // ➕ Add Single Student
-    @PostMapping("/add/{email}")
-    public ResponseEntity<?> addStudent(
-            @PathVariable String email,
-            @RequestBody Student student) {
-
-        Student saved = service.saveStudent(student, email);
-        return ResponseEntity.ok(saved);
-    }
-
-    // 📌 Get All Students of Logged-in User
-    @GetMapping("/all/{email}")
-    public ResponseEntity<?> getStudentsByUser(@PathVariable String email) {
-        return ResponseEntity.ok(service.getStudentsByEmail(email));
-    }
-
-    // 🔍 Get Student by ID (MongoDB)
+    // 🔍 Get Student by ID
     @GetMapping("/get/{id}")
     public ResponseEntity<?> getStudentById(@PathVariable String id) {
-        Student student = service.getStudentById(id);
-
-        if (student == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Student not found");
+        std_Attribute student = service.getStudentById(id);
+        if(student == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
         }
         return ResponseEntity.ok(student);
     }
 
-    // ✏ Update Student by ID
+    // ✏ Update Student by ID (only 3 fields)
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateStudent(
-            @PathVariable String id,
-            @RequestBody Student updatedStudent) {
-
-        Student updated = service.updateStudent(id, updatedStudent);
-
-        if (updated == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Student not found");
+    public ResponseEntity<?> updateStudent(@PathVariable String id, @RequestBody std_Attribute updatedStudent) {
+        std_Attribute updated = service.updateStudent(id, updatedStudent);
+        if(updated == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
         }
         return ResponseEntity.ok(updated);
     }
 
-    // ❌ Delete Student
+    // Optional: Add Single Student
+    @PostMapping("/add/{email}")
+    public ResponseEntity<?> addStudent(@PathVariable String email, @RequestBody std_Attribute student) {
+        student.setCreatedBy(email);
+        service.Addingstudents(student);
+        return ResponseEntity.ok(student);
+    }
+
+    // Optional: Delete
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteStudent(@PathVariable String id) {
-        boolean deleted = service.deleteStudent(id);
-
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Student not found");
+        String res = service.deletestudent(id);
+        if(res.equals("ID not found")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
         }
-
         return ResponseEntity.ok("Deleted Successfully");
     }
 }
