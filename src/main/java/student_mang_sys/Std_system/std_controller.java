@@ -135,6 +135,33 @@ public ResponseEntity<?> forgotPassword(@RequestParam String email) {
                 .body("No account found with this email");
     }
 }
+    // Fetch by ID
+@GetMapping("/get/{id}")
+public ResponseEntity<?> getStudentById(@PathVariable String id) {
+    Optional<std_Attribute> student = reps.findById(id);
+    if (student.isPresent()) {
+        return ResponseEntity.ok(student.get());
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
+    }
+}
+
+// Update by ID
+@PutMapping("/update/{id}")
+public ResponseEntity<?> updateStudent(@PathVariable String id, @RequestBody std_Attribute updatedStudent) {
+    Optional<std_Attribute> existing = reps.findById(id);
+    if (existing.isPresent()) {
+        std_Attribute student = existing.get();
+        student.setName(updatedStudent.getName());
+        student.setEmail(updatedStudent.getEmail());
+        student.setPhone(updatedStudent.getPhone());
+        reps.save(student);
+        return ResponseEntity.ok("Student updated successfully");
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
+    }
+}
+
 
 
 
