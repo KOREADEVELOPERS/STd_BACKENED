@@ -37,7 +37,8 @@ public class std_controller {
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
     }
 
-    // ✔ Save multiple students
+
+    // ✔ Save multiple students under same user
     @PostMapping("/saveall")
     public ResponseEntity<String> saveMultiple(
             @RequestBody List<std_Attribute> students,
@@ -55,12 +56,15 @@ public class std_controller {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("All fields are required for every student");
             }
+
+            // ✔ Set logged-in user's email
             student.setCreatedBy(email);
         }
 
         ser.saveAllStudents(students);
         return ResponseEntity.status(HttpStatus.CREATED).body("Students registered successfully");
     }
+
 
     // ✔ Save single student
     @PostMapping("/save")
@@ -78,60 +82,12 @@ public class std_controller {
         return ResponseEntity.ok("Student saved successfully");
     }
 
-    // ⭐ GET student by ID (for update)
-    @GetMapping("/get/{id}")
-    public ResponseEntity<?> getStudentById(
-            @PathVariable String id,
-            @RequestParam String email) {
 
-        Optional<std_Attribute> studentOpt = reps.findById(id);
+    // ❌ (Removed show-all for safety)  
+    // @GetMapping("/show") → removed because users should not see global data
 
-        if (studentOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
-        }
 
-        std_Attribute student = studentOpt.get();
-
-        // ✅ Check if logged-in user owns this student
-        if (!student.getCreatedBy().equals(email)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authorized to view this student");
-        }
-
-        return ResponseEntity.ok(student);
-    }
-
-    // ⭐ UPDATE student
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateStudent(
-            @PathVariable String id,
-            @RequestParam String email,
-            @RequestBody std_Attribute updatedData) {
-
-        Optional<std_Attribute> existingOpt = reps.findById(id);
-
-        if (existingOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
-        }
-
-        std_Attribute student = existingOpt.get();
-
-        // ✅ Only allow update if student belongs to logged-in user
-        if (!student.getCreatedBy().equals(email)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authorized to update this student");
-        }
-
-        // Update fields
-        student.setName(updatedData.getName());
-        student.setEmail(updatedData.getEmail());
-        student.setPhone(updatedData.getPhone());
-        student.setAddress(updatedData.getAddress());
-        student.setCourse(updatedData.getCourse());
-
-        reps.save(student);
-        return ResponseEntity.ok("Student updated successfully");
-    }
-
-    // ⭐ Search students by logged-in user
+    // ⭐ FIXED — Search will return only logged-in user’s data
     @GetMapping("/find")
     public ResponseEntity<List<std_Attribute>> fetchByUser(@RequestParam String email) {
 
@@ -143,28 +99,18 @@ public class std_controller {
         return ResponseEntity.ok(students);
     }
 
-    // ✔ Delete student
+
+    // ✔ Delete student only by ID
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable String id, @RequestParam String email) {
-        Optional<std_Attribute> studentOpt = reps.findById(id);
-
-        if (studentOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
-        }
-
-        std_Attribute student = studentOpt.get();
-
-        if (!student.getCreatedBy().equals(email)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authorized to delete this student");
-        }
-
-        ser.deletestudent(id);
-        return ResponseEntity.ok("Student deleted successfully");
+    public String delete(@PathVariable String id) {
+        return ser.deletestudent(id);
     }
+
 
     // ✔ Login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody std_Attribute request) {
+
         Optional<std_Attribute> user =
                 reps.findByEmailAndPassword(request.getEmail(), request.getPassword());
 
@@ -176,9 +122,15 @@ public class std_controller {
         }
     }
 
-    // ✔ Fetch logged-in user's students
+
+    // ✔ Fetch logged-in user's students (alternative endpoint)
     @GetMapping("/my")
     public ResponseEntity<List<std_Attribute>> getMyStudents(@RequestParam String email) {
+
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         List<std_Attribute> myStudents = reps.findByCreatedBy(email);
         return ResponseEntity.ok(myStudents);
     }
