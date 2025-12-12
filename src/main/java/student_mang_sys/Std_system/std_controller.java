@@ -121,6 +121,21 @@ public class std_controller {
                     .body("Invalid credentials");
         }
     }
+    // ⭐ Password Reset - Return Password in Response (For College Project)
+@PostMapping("/forgot")
+public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+
+    Optional<std_Attribute> user = reps.findByEmail(email);
+
+    if (user.isPresent()) {
+        // ✔ Password return kar diya user ko (Only for Project)
+        return ResponseEntity.ok(user.get().getPassword());
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("No account found with this email");
+    }
+}
+
 
 
     // ✔ Fetch logged-in user's students (alternative endpoint)
